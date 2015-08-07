@@ -10,7 +10,7 @@ namespace Webfactory\ContentMapping\DestinationAdapter\Solarium;
 
 use Psr\Log\LoggerInterface;
 use Solarium\Client;
-use Solarium\QueryType\Select\Result\DocumentInterface as SelectedDocumentInterface;;
+use Solarium\QueryType\Select\Result\DocumentInterface as SelectedDocumentInterface;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
 use Solarium\QueryType\Update\Query\Document\DocumentInterface as UpdatedDocumentInterface;
 use Webfactory\ContentMapping\DestinationAdapter;
@@ -95,12 +95,6 @@ final class SolariumDestinationAdapter implements DestinationAdapter
         $newDocument->id = $normalizedObjectClass . ':' . $id;
         $newDocument->objectid = $id;
         $newDocument->objectclass = $normalizedObjectClass;
-        $newDocument->hash = '';
-
-        $updateQuery->addDocument($newDocument)
-                    ->addCommit();
-
-        $this->solrClient->execute($updateQuery);
 
         return $newDocument;
     }
