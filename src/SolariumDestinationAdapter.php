@@ -95,6 +95,7 @@ final class SolariumDestinationAdapter implements DestinationAdapter
         $newDocument->id = $normalizedObjectClass . ':' . $id;
         $newDocument->objectid = $id;
         $newDocument->objectclass = $normalizedObjectClass;
+        $newDocument->hash = '';
 
         $updateQuery->addDocument($newDocument)
                     ->addCommit();
