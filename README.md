@@ -1,6 +1,7 @@
 # content-mapping-destinationadapter-solarium #
 
-DestinationAdapter for the solarium Solr client inside the webfactory/content-mapping mini framework.
+DestinationAdapter for the solarium Solr client inside the [webfactory/content-mapping](https://github.com/webfactory/content-mapping)
+mini framework.
 
 
 ## Installation ##
