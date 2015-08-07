@@ -21,7 +21,7 @@
 
     "autoload": {
         "psr-4": {
-            "Webfactory\\ContentMapping\\DestinationAdapter\\Solr\\": "src"
+            "Webfactory\\ContentMapping\\DestinationAdapter\\Solarium\\": "src"
         }
     }
 }

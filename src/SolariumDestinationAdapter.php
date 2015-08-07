@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webfactory\ContentMapping\Solr;
+namespace Webfactory\ContentMapping\DestinationAdapter\Solarium;
 
 use Psr\Log\LoggerInterface;
 use Solarium\Client;
