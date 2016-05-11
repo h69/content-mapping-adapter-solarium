@@ -159,21 +159,20 @@ final class SolariumDestinationAdapter implements DestinationAdapter
             return;
         }
 
+        $update = $this->solrClient->createUpdate();
+
         if ($this->deletedDocumentIds) {
-            $updateQuery = $this->solrClient->createUpdate()
-                                            ->addDeleteByIds($this->deletedDocumentIds)
-                                            ->addCommit();
-            $this->solrClient->execute($updateQuery);
-            $this->deletedDocumentIds = array();
+            $update->addDeleteByIds($this->deletedDocumentIds);
         }
 
         if ($this->newOrUpdatedDocuments) {
-            $updateQuery = $this->solrClient->createUpdate()
-                                            ->addDocuments($this->newOrUpdatedDocuments)
-                                            ->addCommit();
-            $this->solrClient->execute($updateQuery);
-            $this->newOrUpdatedDocuments = array();
+            $update->addDocuments($this->newOrUpdatedDocuments);
         }
+
+        $update->addCommit();
+        $this->solrClient->execute($update);
+        $this->deletedDocumentIds = array();
+        $this->newOrUpdatedDocuments = array();
 
         $this->logger->debug("Flushed");
     }
