@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 use Solarium\Client;
 use Solarium\QueryType\Select\Result\DocumentInterface as SelectedDocumentInterface;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
-use Solarium\QueryType\Update\Query\Document\DocumentInterface as UpdatedDocumentInterface;
+use Solarium\QueryType\Update\Query\Document\DocumentInterface;
 use Webfactory\ContentMapping\DestinationAdapter;
 
 /**
@@ -33,7 +33,7 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     private $logger;
 
     /**
-     * @var UpdatedDocumentInterface[]
+     * @var DocumentInterface[]
      */
     private $newOrUpdatedDocuments = array();
 
@@ -60,6 +60,7 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     {
         $normalizedObjectClass = $this->normalizeObjectClass($objectClass);
         $query = $this->solrClient->createSelect()
+                                  ->setDocumentClass(\Solarium\QueryType\Update\Query\Document\Document::class) // use the read/write document
                                   ->setQuery('objectclass:' . $normalizedObjectClass)
                                   ->setStart(0)
                                   ->setRows(1000000)
@@ -83,7 +84,7 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     /**
      * @param int $id
      * @param string $className
-     * @return UpdatedDocumentInterface
+     * @return DocumentInterface
      */
     public function createObject($id, $className)
     {
@@ -111,7 +112,7 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     /**
      * This method is a hook e.g. to notice an external change tracker that the $object has been updated.
      *
-     * @param UpdatedDocumentInterface $objectInDestinationSystem
+     * @param DocumentInterface $objectInDestinationSystem
      */
     public function updated($objectInDestinationSystem)
     {
@@ -130,7 +131,7 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     /**
      * Get the id of an \Apache_Solr_Document object in the destination system.
      *
-     * @param UpdatedDocumentInterface $objectInDestinationSystem
+     * @param DocumentInterface $objectInDestinationSystem
      * @return int
      */
     public function idOf($objectInDestinationSystem)
