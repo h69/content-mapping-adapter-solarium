@@ -31,6 +31,11 @@ final class SolariumDestinationAdapter implements DestinationAdapter
      * @var LoggerInterface
      */
     private $logger;
+    
+    /**
+     * @var int Number of documents to collect before flushing intermediate results to Solr.
+     */
+    private $batchSize;
 
     /**
      * @var DocumentInterface[]
@@ -46,10 +51,11 @@ final class SolariumDestinationAdapter implements DestinationAdapter
      * @param Client $solrClient
      * @param LoggerInterface $logger
      */
-    public function __construct(Client $solrClient, LoggerInterface $logger)
+    public function __construct(Client $solrClient, LoggerInterface $logger, $batchSize = 20)
     {
         $this->solrClient = $solrClient;
         $this->logger = $logger;
+        $this->batchSize = $batchSize;
     }
 
     /**
@@ -141,7 +147,7 @@ final class SolariumDestinationAdapter implements DestinationAdapter
 
     private function flushIfBatchIsBigEnough()
     {
-        if ((count($this->deletedDocumentIds) + count($this->newOrUpdatedDocuments)) >= 20) {
+        if ((count($this->deletedDocumentIds) + count($this->newOrUpdatedDocuments)) >= $this->batchSize) {
             $this->flush();
         }
     }
