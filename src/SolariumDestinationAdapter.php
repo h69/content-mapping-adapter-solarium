@@ -14,13 +14,16 @@ use Solarium\QueryType\Select\Result\DocumentInterface as SelectedDocumentInterf
 use Solarium\QueryType\Select\Result\Result as SelectResult;
 use Solarium\QueryType\Update\Query\Document\DocumentInterface;
 use Webfactory\ContentMapping\DestinationAdapter;
+use Solarium\QueryType\Update\Query\Document\Document;
+use Webfactory\ContentMapping\ProgressListenerInterface;
+use Webfactory\ContentMapping\UpdateableObjectProviderInterface;
 
 /**
  * Adapter for the solarium Solr client as a destination system.
  *
  * @final by default
  */
-final class SolariumDestinationAdapter implements DestinationAdapter
+final class SolariumDestinationAdapter implements DestinationAdapter, ProgressListenerInterface, UpdateableObjectProviderInterface
 {
     /**
      * @var Client
@@ -66,7 +69,6 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     {
         $normalizedObjectClass = $this->normalizeObjectClass($objectClass);
         $query = $this->solrClient->createSelect()
-                                  ->setDocumentClass(\Solarium\QueryType\Update\Query\Document\Document::class) // use the read/write document
                                   ->setQuery('objectclass:' . $normalizedObjectClass)
                                   ->setStart(0)
                                   ->setRows(1000000)
@@ -106,13 +108,17 @@ final class SolariumDestinationAdapter implements DestinationAdapter
         return $newDocument;
     }
 
+    public function prepareUpdate($destinationObject)
+    {
+        return new Document($destinationObject->getFields());
+    }
+
     /**
      * @param SelectedDocumentInterface $destinationObject
      */
     public function delete($destinationObject)
     {
         $this->deletedDocumentIds[] = $destinationObject->id;
-        $this->flushIfBatchIsBigEnough();
     }
 
     /**
@@ -123,7 +129,13 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     public function updated($objectInDestinationSystem)
     {
         $this->newOrUpdatedDocuments[] = $objectInDestinationSystem;
-        $this->flushIfBatchIsBigEnough();
+    }
+
+    public function afterObjectProcessed()
+    {
+        if ((count($this->deletedDocumentIds) + count($this->newOrUpdatedDocuments)) >= $this->batchSize) {
+            $this->flush();
+        }
     }
 
     /**
@@ -135,7 +147,7 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     }
 
     /**
-     * Get the id of an \Apache_Solr_Document object in the destination system.
+     * @inheritdoc
      *
      * @param DocumentInterface $objectInDestinationSystem
      * @return int
@@ -143,13 +155,6 @@ final class SolariumDestinationAdapter implements DestinationAdapter
     public function idOf($objectInDestinationSystem)
     {
         return $objectInDestinationSystem->objectid;
-    }
-
-    private function flushIfBatchIsBigEnough()
-    {
-        if ((count($this->deletedDocumentIds) + count($this->newOrUpdatedDocuments)) >= $this->batchSize) {
-            $this->flush();
-        }
     }
 
     private function flush()
@@ -178,10 +183,23 @@ final class SolariumDestinationAdapter implements DestinationAdapter
 
         $update->addCommit();
         $this->solrClient->execute($update);
+
         $this->deletedDocumentIds = array();
         $this->newOrUpdatedDocuments = array();
 
         $this->logger->debug("Flushed");
+
+        /*
+         * Manually trigger garbage collection
+         * \Solarium\QueryType\Update\Query\Document\Document might hold a reference
+         * to a "helper" object \Solarium\Core\Query\Helper, which in turn references
+         * back the document. This circle prevents the normal, refcount-based GC from
+         * cleaning up the processed Document instances after we release them.
+         *
+         * To prevent memory exhaustion, we start a GC cycle collection run.
+         */
+        $update = null;
+        gc_collect_cycles();
     }
 
     /**
