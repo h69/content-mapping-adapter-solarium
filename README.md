@@ -1,35 +1,36 @@
-# content-mapping-destinationadapter-solarium #
+# content-mapping-adapter-solarium #
 
-DestinationAdapter for the solarium Solr client inside the [webfactory/content-mapping](https://github.com/webfactory/content-mapping)
-mini framework.
+Adapter for the solarium Solr client inside the [h69/content-mapping](https://github.com/h69/content-mapping) mini framework.
 
 
 ## Installation ##
 
-    composer require webfactory/content-mapping-destinationadapter-solarium
+    composer require h69/content-mapping-adapter-solarium
 
 
 ## Usage ##
 
 ```php
-use Solarium\Client;
-use Webfactory\ContentMapping\Synchronizer;
-use Webfactory\ContentMapping\Solr\SolariumDestinationAdapter;
+use Solarium\Client as SolariumClient;
+use H69\ContentMapping\Synchronizer;
+use H69\ContentMapping\Solarium\Adapter as SolariumAdapter;
 
-$solrClient = new Client($configArray); // see solarium documentation for details
-$logger = ...; // any PSR3-Logger
+$sourceAdapter = ...;
+$destinationAdapter = new SolariumAdapter(new SolariumClient($configArray));
+$typeToSynchronize = 'pages';
 
-$destinationAdapter = new SolariumDestinationAdapter($solrClient, $logger);
-
-$synchronizer = new Synchronizer($sourceAdapter, $mapper, $destinationAdapter, $logger);
+$synchronizer = new Synchronizer($sourceAdapter, $destinationAdapter);
+$synchronizer->synchronize($typeToSynchronize, function($objectA, $objectB){
+    ...
+    //return Result::unchanged();
+    return Result::changed($updatedObjectB);
+});
 ```
 
 
 ## Credits, Copyright and License ##
 
-This project was started at webfactory GmbH, Bonn.
+This project/copy was started at [webfactory GmbH, Bonn](https://www.webfactory.de) and was/will be further developed by
+- [h69](https://github.com/h69)
 
-- <http://www.webfactory.de>
-- <http://twitter.com/webfactory>
-
-Copyright 2015 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
+Copyright 2016. Code released under [the MIT license](LICENSE).
