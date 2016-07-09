@@ -1,5 +1,8 @@
 # content-mapping-adapter-solarium #
 
+[![Build Status](https://travis-ci.org/h69/content-mapping-adapter-solarium.svg?branch=master)](https://travis-ci.org/h69/content-mapping-adapter-solarium)
+[![Coverage Status](https://coveralls.io/repos/github/h69/content-mapping-adapter-solarium/badge.svg?branch=master)](https://coveralls.io/github/h69/content-mapping-adapter-solarium?branch=master)
+
 Adapter for the solarium Solr client inside the [h69/content-mapping](https://github.com/h69/content-mapping) mini framework.
 
 
