@@ -69,12 +69,8 @@ class Adapter implements CM\Adapter, CM\Adapter\ProgressListener, CM\Adapter\Upd
      *
      * @return \Iterator
      */
-    public function getObjectsOrderedById($type, $indexQueue = false)
+    public function getObjectsOrderedById($type)
     {
-        if ($indexQueue !== false) {
-            throw new NotImplementedException(__CLASS__ . ' is not available for indexing! (Status of objects can\'t be determined)');
-        }
-
         $query = $this->solrClient->createSelect()
             ->setQuery('type:' . $type)
             ->setStart(0)
@@ -99,18 +95,6 @@ class Adapter implements CM\Adapter, CM\Adapter\ProgressListener, CM\Adapter\Upd
     public function idOf($object)
     {
         return $object->id;
-    }
-
-    /**
-     * Get the current status of an object (NEW, UPDATE or DELETE)
-     *
-     * @param mixed $object
-     *
-     * @return int
-     */
-    public function statusOf($object)
-    {
-        throw new NotImplementedException(__CLASS__ . ' is not available for indexing! (Status of objects can\'t be determined)');
     }
 
     /**
@@ -162,7 +146,7 @@ class Adapter implements CM\Adapter, CM\Adapter\ProgressListener, CM\Adapter\Upd
         if (count($this->deletedDocumentIds) === 0 && count($this->newOrUpdatedDocuments) === 0) {
             return;
         }
-        
+
         $this->messages[] = "Flushing " . count($this->newOrUpdatedDocuments) . " inserts or updates and " . count($this->deletedDocumentIds) . " deletes";
 
         $update = $this->solrClient->createUpdate();

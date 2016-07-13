@@ -8,7 +8,6 @@ use Solarium\QueryType\Select\Result\Result as SolariumSelectResult;
 use Solarium\QueryType\Update\Query\Query as SolariumUpdate;
 use Solarium\QueryType\Update\Query\Document\Document as SolariumUpdateDocument;
 use H69\ContentMapping\Solarium\Adapter as SolariumAdapter;
-use H69\ContentMapping\Solarium\NotImplementedException;
 
 /**
  * Class SolariumAdapterTest
@@ -59,15 +58,6 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function adapterExceptionOnIndexing()
-    {
-        $this->setExpectedException(NotImplementedException::class);
-        $this->adapter->getObjectsOrderedById($this->type, true);
-    }
-
-    /**
-     * @test
-     */
     public function adapterReturnsOrderedObjects()
     {
         $query = new SolariumSelectQuery();
@@ -104,15 +94,6 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $obj = new \stdClass();
         $obj->id = 5;
         $this->assertEquals(5, $this->adapter->idOf($obj));
-    }
-
-    /**
-     * @test
-     */
-    public function adapterExceptionOnObjectStatus()
-    {
-        $this->setExpectedException(NotImplementedException::class);
-        $this->adapter->statusOf(new \stdClass());
     }
 
     /**
